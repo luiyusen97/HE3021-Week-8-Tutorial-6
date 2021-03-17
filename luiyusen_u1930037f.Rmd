@@ -54,11 +54,11 @@ summary(residuals_lm)
 ```
 The p-value is 0.3232, thus we cannot reject the null hypothesis that the partial effects of lags $u_{t-1}$ and $u_{t-2}$ are equal to 0. Thus there is no serial correlation of lag 2.
 There is a constant mean of 0, since we regressed without an intercept and  
-Thus, the residuals resemble white noise.
-A Breusch-Godfrey test was also conducted. Using the forecast package, a Ljung-Box test was also conducted directly on the ARIMA model object.
+Thus, the residuals resemble white noise.  
+A Breusch-Godfrey test was also conducted on the regression of residuals. Using the forecast package, a Ljung-Box test was also conducted directly on the ARIMA model object.
 ```{r, echo=TRUE}
-lmtest::bgtest(t ~ t1 + t2, data = residuals_frame, order = 2)
 checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
+lmtest::bgtest(t ~ t1 + t2, data = residuals_frame, order = 2)
 ```
 The high p-values mean that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
 
