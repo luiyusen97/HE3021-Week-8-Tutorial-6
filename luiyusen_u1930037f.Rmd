@@ -1,0 +1,132 @@
+---
+title: "HE3021 Tutorial 6 Submission"
+author: "Lui Yu Sen"
+date: "3/16/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(haven)
+library(tidyverse)
+library(tseries)
+library(stats)
+library(forecast)
+library(lmtest)
+first_series <- read_dta("C:\\Users\\Lui Yu Sen\\Google Drive\\NTU_study materials\\Economics\\HE3021 Intermediate Econometrics\\Week 8\\HE3021-Week-8-Tutorial-6\\rawdata\\first_Series.dta")
+first_series <- mutate(first_series, time = as.Date(first_series$time, origin = "2000-01-01"))
+mroz <- read_dta("C:\\Users\\Lui Yu Sen\\Google Drive\\NTU_study materials\\Economics\\HE3021 Intermediate Econometrics\\Week 8\\HE3021-Week-8-Tutorial-6\\rawdata\\MROZ.dta")
+```
+
+# Q1
+## a and b
+
+```{r 1a, echo=FALSE}
+plot(first_series$time, first_series$y, type = "l", main = "Plot of y against time")
+pacf(first_series$y, main = "PACF plot for y") # sharp spike, identify AR model
+acf(first_series$y, main = "ACF plot for y") # decaying exponentially
+```
+```{r, echo=TRUE}
+adftest <- adf.test(ts(first_series$y))
+pp <- pp.test(first_series$y)
+```
+The ACF plot has an exponentially decaying ACF. 
+ADF test returned `r adftest$p.value` and PP test returned `r pp$p.value`, thus we have sufficient evidence to reject the null hypothesis that there exists a unit root at 0.05 significance level. The time series is likely stationary.
+The ACF is decaying while the PACF has a significant spike at t-1. Thus, it is likely that the appropriate model is AR(1).
+## c
+```{r, echo=TRUE}
+Arima(first_series$y, order = c(0,1,1), include.mean = TRUE)
+```
+The PACF plot had t-1 as the significant spike, thus I started with and ARIMA(1,0,0) model. The AIC value generated was `r AIC(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))`.
+```{r, echo=TRUE}
+Arima(first_series$y, order = c(2,0,0), include.mean = TRUE)
+```
+AR(2) generated a larger AIC of `r AIC(Arima(first_series$y, order = c(2,0,0), include.mean = TRUE))`, so AR(1) was the closer fitting model.
+AR(3) generate even larger AIC of `r AIC(Arima(first_series$y, order = c(3,0,0), include.mean = TRUE))`, thus I chose AR(1).
+## d
+To check for autocorrelation in the residuals, I fitted an AR(2) model for the residuals and did an F-test.
+```{r, echo=TRUE}
+residuals <- Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)$residuals
+residuals_frame <- data.frame(cbind(residuals[3:5000], residuals[2:4999], residuals[1:4998]))
+colnames(residuals_frame) <- c("t","t1","t2")
+residuals_lm <- lm(t ~ t1 + t2 - 1, data = residuals_frame) # p-value 0.3232, cannot reject null hyp that all coeff 0, so no serial correlation for 2 lags
+summary(residuals_lm)
+```
+The p-value is 0.3232, thus we cannot reject the null hypothesis that the partial effects of lags $u_{t-1}$ and $u_{t-2}$ are equal to 0. Thus there is no serial correlation of lag 2.
+There is a constant mean of 0, since we regressed without an intercept and  
+Thus, the residuals resemble white noise.
+A Breusch-Godfrey test was also conducted.
+```{r, echo=TRUE}
+lmtest::bgtest(t ~ t1 + t2, data = residuals_frame, order = 2)
+```
+The high p-value means that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
+
+# 2
+
+## a
+$$
+E(y_i|x_{i1},x_{i2})=E(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
+=E(\beta_0|x_{i1},x_{i2})+E(\beta_1x_{i1}|x_{i1},x_{i2})+E(\beta_2x_{i2}|x_{i1},x_{i2})+E(u_i|x_{i1},x_{i2}) \\  
+=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+0=P(y_i=1|x_{i1},x_{i2})
+$$
+
+## b
+$$
+Var(y_i|x_{i1},x_{i2})=Var(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
+=0+0+Var(u_i|x_{i1},x_{i2}) \\  
+=P(y_i=1|x_{i1},x_{i2})(1-P(y_i=1|x_{i1},x_{i2})) \\  
+\implies Var(u_i|x_{i1},x_{i2})=f(x_{i1},x_{i2})=(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})[1-(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})]
+$$
+Thus a linear probability model cannot be homoskedastic, because it is a Bernoulli process and the error variance is a function of the independent variables.
+
+## c
+An increase of $1000 in income leads to increase of 0.08 chance of buying a car, holding education constant.
+An increase of 1 year of education leads to increase of 0.01 chance of buying a car holding income constant.
+
+## d
+$$
+\hat{y}_i=-0.1+0.08\cdot8+0.01\cdot16=0.7
+$$
+There is a 0.7 chance that this person has a car.
+
+## e
+$$
+\hat{y}_i=-0.1+0.08\cdot15+0.01\cdot16=1.26>1
+$$
+There is a 1.26 chance that this person has a car. This result does not make sense, since $P(y=1|x_{i1},x_{i2})\in[0,1]$. To solve it, let
+$$
+\hat{y}_i=
+\left \{
+\begin{array}{ll}
+0, \ if \ \hat{\beta_0}+\hat{\beta_1}x_{i1}+\hat{\beta_2}x_{i2}<0 \\
+1, \ if \ \hat{\beta_0}+\hat{\beta_1}x_{i1}+\hat{\beta_2}x_{i2}>1 \\ 
+\hat{\beta_0}+\hat{\beta_1}x_{i1}+\hat{\beta_2}x_{i2}, \hat{y}_i\in[0,1]
+\end{array}
+\right. \
+$$
+Then, $\hat{y}_i=-0.1+0.08\cdot15+0.01\cdot16=1$, there is probability of 1 that this person has a car.
+
+# 3
+
+## a
+Let$$
+CDF=\Phi(z), PDF=\phi(z), z=\beta_0+\beta_1x_1+beta_2x_2+\beta_3x_3+\beta_4x_4+\beta_5x_5 \\ 
+\frac{\partial P(y=1|X)}{\partial x_1}=\frac{\partial}{\partial x_1}\int_{-\infty}^{z}\phi(z)dx_1=(2\pi)^{-\frac{1}{2}}\cdot e^{-\frac{z^2}{2}}\cdot\beta_1
+$$
+
+## b
+```{r, echo=TRUE}
+model <- glm(inlf ~ nwifeinc + educ + kidslt6 + age + exper,
+             family = binomial(link = "probit"),
+             data = mroz)
+summary(model)
+```
+Using the TI-84's normal CDF function:
+$$
+\Phi(0.76454+(-0.11371)20+0.131532\cdot10+(-0.057919)30+0.069148\cdot10)=\Phi(0.806351)=0.78998
+$$
+
+## c
+$$
+\frac{\partial P(y=1|X)}{\partial x_{exper}}=\frac{\partial}{\partial x_{exper}}\int_{-\infty}^{z}\phi(z)dx_{exper}=(2\pi)^{-\frac{1}{2}}\cdot e^{-\frac{0.806351^2}{2}}\cdot0.069148=0.019930
+$$
