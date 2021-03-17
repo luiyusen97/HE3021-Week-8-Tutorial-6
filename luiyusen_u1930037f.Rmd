@@ -65,19 +65,21 @@ The high p-values mean that we cannot reject the null hypothesis of no serial co
 # 2
 
 ## a
-$$
-E(y_i|x_{i1},x_{i2})=E(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
-=E(\beta_0|x_{i1},x_{i2})+E(\beta_1x_{i1}|x_{i1},x_{i2})+E(\beta_2x_{i2}|x_{i1},x_{i2})+E(u_i|x_{i1},x_{i2}) \\  
-=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+0=P(y_i=1|x_{i1},x_{i2})
-$$
+\begin{align}
+&E(y_i|x_{i1},x_{i2})=E(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
+&=E(\beta_0|x_{i1},x_{i2})+E(\beta_1x_{i1}|x_{i1},x_{i2})+E(\beta_2x_{i2}|x_{i1},x_{i2})+E(u_i|x_{i1},x_{i2}) \\  
+&=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+0=P(y_i=1|x_{i1},x_{i2})
+\end{align}
 
 ## b
-$$
-Var(y_i|x_{i1},x_{i2})=Var(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
-=0+0+Var(u_i|x_{i1},x_{i2}) \\  
-=P(y_i=1|x_{i1},x_{i2})(1-P(y_i=1|x_{i1},x_{i2})) \\  
-\implies Var(u_i|x_{i1},x_{i2})=f(x_{i1},x_{i2})=(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})[1-(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})]
-$$
+
+\begin{align}
+&Var(y_i|x_{i1},x_{i2})=Var(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
+&=0+0+Var(u_i|x_{i1},x_{i2}) \\  
+&=P(y_i=1|x_{i1},x_{i2})(1-P(y_i=1|x_{i1},x_{i2})) \\  
+&\implies Var(u_i|x_{i1},x_{i2})=f(x_{i1},x_{i2})=(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})[1-(\beta_0+\beta_1x_{i1}+\beta_2x_{i2})]
+\end{align}
+
 Thus a linear probability model cannot be homoskedastic, because it is a Bernoulli process and the error variance is a function of the independent variables.
 
 ## c
@@ -110,10 +112,11 @@ Then, $\hat{y}_i=-0.1+0.08\cdot15+0.01\cdot16=1$, there is probability of 1 that
 # 3
 
 ## a
-Let$$
-CDF=\Phi(z), PDF=\phi(z), z=\beta_0+\beta_1x_1+beta_2x_2+\beta_3x_3+\beta_4x_4+\beta_5x_5 \\ 
-\frac{\partial P(y=1|X)}{\partial x_1}=\frac{\partial}{\partial x_1}\int_{-\infty}^{z}\phi(z)dx_1=(2\pi)^{-\frac{1}{2}}\cdot e^{-\frac{z^2}{2}}\cdot\beta_1
-$$
+Let
+\begin{align}
+&CDF=\Phi(z), PDF=\phi(z), z=\beta_0+\beta_1x_1+beta_2x_2+\beta_3x_3+\beta_4x_4+\beta_5x_5 \\ 
+&\frac{\partial P(y=1|X)}{\partial x_1}=\frac{\partial}{\partial x_1}\int_{-\infty}^{z}\phi(z)dx_1=(2\pi)^{-\frac{1}{2}}\cdot e^{-\frac{z^2}{2}}\cdot\beta_1
+\end{align}
 
 ## b
 ```{r, echo=TRUE}
