@@ -34,3 +34,13 @@ residuals_lm <- lm(t ~ t1 + t2 - 1, data = residuals_frame) # p-value 0.3232, ca
 # is white noise yay
 
 checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
+
+y_lagged <- as.data.frame(cbind(first_series$y[2:5000], first_series$y[1:4999]))
+colnames(y_lagged) <- c("y_t", "y_tlag1")
+modelar1 <- lm(y_t ~ y_tlag1, data = y_lagged)
+lmtest::bgtest(modelar1, data = y_lagged, order = 1)
+bgtest_results <- c()
+for (n in 1:24){
+    bgtest_results <- c(bgtest_results, bgtest(modelar1, data = y_lagged, order = n)$p.value)
+}
+range(bgtest_results)

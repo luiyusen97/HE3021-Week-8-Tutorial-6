@@ -57,12 +57,23 @@ summary(residuals_lm)
 ```
 The p-value is 0.3232, thus we cannot reject the null hypothesis that the partial effects of lags $u_{t-1}$ and $u_{t-2}$ are equal to 0. Thus there is no serial correlation of lag 2.
 Thus, the residuals resemble white noise.  
-A Breusch-Godfrey test was also conducted on the regression of residuals. Using the forecast package, a Ljung-Box test was also conducted directly on the ARIMA model object.
+Using the forecast package, a Ljung-Box test was also conducted directly on the ARIMA model object.
 ```{r, echo=TRUE}
 checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
-lmtest::bgtest(t ~ t1 + t2, data = residuals_frame, order = 2)
 ```
-The high p-values mean that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
+The high p-value mean that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
+I also conducted a Breusch-Godfrey test using the lmtest package by first manually regressing an AR(1) model.
+```{r, echo=TRUE}
+y_lagged <- as.data.frame(cbind(first_series$y[2:5000], first_series$y[1:4999]))
+colnames(y_lagged) <- c("y_t", "y_tlag1")
+modelar1 <- lm(y_t ~ y_tlag1, data = y_lagged)
+bgtest_results <- c()
+for (n in 1:24){
+    bgtest_results <- c(bgtest_results, bgtest(modelar1, data = y_lagged, order = n)$p.value)
+}
+range(bgtest_results)
+```
+Testing lags from 1 to 24 for any seasonal lags returned a range of 24 values all above 0.05 significance level. Thus we cannot reject null hypothesis of no serial correlation. The residuals appear to be white noise.
 
 # 2
 
