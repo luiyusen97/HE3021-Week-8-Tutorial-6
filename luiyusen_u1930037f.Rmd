@@ -44,7 +44,7 @@ The PACF plot had t-1 as the significant spike, thus I started with and ARIMA(1,
 Arima(first_series$y, order = c(2,0,0), include.mean = TRUE)
 ```
 AR(2) generated a larger AIC of `r AIC(Arima(first_series$y, order = c(2,0,0), include.mean = TRUE))`, so AR(1) was the closer fitting model.
-AR(3) generate even larger AIC of `r AIC(Arima(first_series$y, order = c(3,0,0), include.mean = TRUE))`, thus I chose AR(1).
+AR(3) generated a larger AIC of `r AIC(Arima(first_series$y, order = c(3,0,0), include.mean = TRUE))`, thus I chose AR(1).
 
 ## d
 To check for autocorrelation in the residuals, I fitted an AR(2) model for the residuals and did an F-test.
