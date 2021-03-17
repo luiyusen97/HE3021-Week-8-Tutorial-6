@@ -61,7 +61,7 @@ Using the forecast package, a Ljung-Box test was also conducted directly on the 
 ```{r, echo=TRUE}
 checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
 ```
-The high p-value mean that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
+The high p-value of 0.5857 means that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
 I also conducted a Breusch-Godfrey test using the lmtest package by first manually regressing an AR(1) model.
 ```{r, echo=TRUE}
 y_lagged <- as.data.frame(cbind(first_series$y[2:5000], first_series$y[1:4999]))
