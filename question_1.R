@@ -33,3 +33,4 @@ lmtest::bgtest(t ~ t1 + t2, data = residuals_frame, order = 2)
 residuals_lm <- lm(t ~ t1 + t2 - 1, data = residuals_frame) # p-value 0.3232, cannot reject null hyp that all coeff 0, so no serial correlation for 2 lags
 # is white noise yay
 
+checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
