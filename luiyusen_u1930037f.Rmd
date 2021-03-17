@@ -19,6 +19,7 @@ mroz <- read_dta("C:\\Users\\Lui Yu Sen\\Google Drive\\NTU_study materials\\Econ
 ```
 
 # Q1
+
 ## a and b
 
 ```{r 1a, echo=FALSE}
@@ -33,6 +34,7 @@ pp <- pp.test(first_series$y)
 The ACF plot has an exponentially decaying ACF. 
 ADF test returned `r adftest$p.value` and PP test returned `r pp$p.value`, thus we have sufficient evidence to reject the null hypothesis that there exists a unit root at 0.05 significance level. The time series is likely stationary.
 The ACF is decaying while the PACF has a significant spike at t-1. Thus, it is likely that the appropriate model is AR(1).
+
 ## c
 ```{r, echo=TRUE}
 Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)
@@ -43,6 +45,7 @@ Arima(first_series$y, order = c(2,0,0), include.mean = TRUE)
 ```
 AR(2) generated a larger AIC of `r AIC(Arima(first_series$y, order = c(2,0,0), include.mean = TRUE))`, so AR(1) was the closer fitting model.
 AR(3) generate even larger AIC of `r AIC(Arima(first_series$y, order = c(3,0,0), include.mean = TRUE))`, thus I chose AR(1).
+
 ## d
 To check for autocorrelation in the residuals, I fitted an AR(2) model for the residuals and did an F-test.
 ```{r, echo=TRUE}
