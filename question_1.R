@@ -23,7 +23,7 @@ pp <- pp.test(first_series$y) # this one. Still have to find out how adf works
 # rm(n)
 pacf(first_series$y) # sharp spike, identify AR model
 acf(first_series$y) # decaying exponentially
-Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)
+modelarima1<-Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)
 AIC(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)) # ar(1)
 model_ar2 <- auto.arima(first_series$y) # ar(2) has smallest AIC
 residuals <- Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)$residuals
@@ -44,3 +44,10 @@ for (n in 1:24){
     bgtest_results <- c(bgtest_results, bgtest(modelar1, data = y_lagged, order = n)$p.value)
 }
 range(bgtest_results)
+
+lmobject <- lm(modelarima1$residuals ~ 1)
+bgtest_results_zeileis <- c()
+for (n in 1:24){
+    bgtest_results_zeileis <- c(bgtest_results_zeileis, bgtest(lmobject, order = n)$p.value)
+}
+range(bgtest_results_zeileis)

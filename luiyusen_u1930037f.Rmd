@@ -62,18 +62,18 @@ Using the forecast package, a Ljung-Box test was also conducted directly on the 
 checkresiduals(Arima(first_series$y, order = c(1,0,0), include.mean = TRUE))
 ```
 The high p-value of 0.5857 means that we cannot reject the null hypothesis of no serial correlation under significance level of 0.05.
-I also conducted a Breusch-Godfrey test using the lmtest package by first manually regressing an AR(1) model.
+I also conducted a Breusch-Godfrey test using the lmtest package.
 ```{r, echo=TRUE}
-y_lagged <- as.data.frame(cbind(first_series$y[2:5000], first_series$y[1:4999]))
-colnames(y_lagged) <- c("y_t", "y_tlag1")
-modelar1 <- lm(y_t ~ y_tlag1, data = y_lagged)
-bgtest_results <- c()
+modelarima1<-Arima(first_series$y, order = c(1,0,0), include.mean = TRUE)
+lmobject <- lm(modelarima1$residuals ~ 1)
+bgtest_results_zeileis <- c()
 for (n in 1:24){
-    bgtest_results <- c(bgtest_results, bgtest(modelar1, data = y_lagged, order = n)$p.value)
+    bgtest_results_zeileis <- c(bgtest_results_zeileis, bgtest(lmobject, order = n)$p.value)
 }
-range(bgtest_results)
+# approach of applying a manual bgtest to the residuals of an arima model object was
+# taken from an archived help mail by Achim Zeileis (2012)
 ```
-Testing lags from 1 to 24 for any seasonal lags returned a range of 24 values all above 0.05 significance level. Thus we cannot reject null hypothesis of no serial correlation. The residuals appear to be white noise.
+Testing lags from 1 to 24 for any seasonal lags returned a range of 24 p-values, [`r range(bgtest_results_zeileis)`], all above 0.05 significance level. Thus we cannot reject null hypothesis of no serial correlation. The residuals appear to be white noise.
 
 # 2
 
@@ -81,7 +81,9 @@ Testing lags from 1 to 24 for any seasonal lags returned a range of 24 values al
 \begin{align}
 &E(y_i|x_{i1},x_{i2})=E(\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+u_i|x_{i1},x_{i2}) \\  
 &=E(\beta_0|x_{i1},x_{i2})+E(\beta_1x_{i1}|x_{i1},x_{i2})+E(\beta_2x_{i2}|x_{i1},x_{i2})+E(u_i|x_{i1},x_{i2}) \\  
-&=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+0=P(y_i=1|x_{i1},x_{i2})
+&=\beta_0+\beta_1x_{i1}+\beta_2x_{i2}+0 \\ 
+&=1\cdot P(y_i=1|x_{i1},x_{i2})+0\cdot P(y_i=0|x_{i1},x_{i2}) \\ 
+&=P(y_i=1|x_{i1},x_{i2})
 \end{align}
 
 ## b
